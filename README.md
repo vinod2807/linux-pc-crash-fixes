@@ -68,20 +68,28 @@ Disables HDA audio power-saving, which can hang or pop on wakeup.
 snd_hda_intel.power_save=0
 ```
 
-### Status (verified 2026-10-10): EasyOS-only, NOT on Puppy/Ubuntu
+### Status: applied to Puppy 2026-10-10 (was EasyOS-only before)
 
-- EasyOS entry (`40_custom:29`, `grub.cfg:352,384`): present.
-- Ubuntu kernels (`/etc/default/grub`, `grub.cfg:179,199,237,275`): absent.
-- Puppy entries (`40_custom:12,21`): absent.
-- Running Puppy `/proc/cmdline`: absent — driver at defaults:
-  `power_save=1` (codec powers down after 1s idle),
-  `power_save_controller=Y`, card `HDA Intel MID`
-  (evidence: `boot/snd_hda-power_save*.txt`, `boot/asound-cards.txt`).
+- EasyOS entry (`40_custom:29`, `grub.cfg:352,384`): present since before.
+- Ubuntu kernels (`/etc/default/grub`): absent (unchanged).
+- Puppy entries: flag **added 2026-10-10** to both the source
+  (`/dev/sda2:/etc/grub.d/40_custom:12,21`) and the generated
+  (`/dev/sda2:/boot/grub/grub.cfg:335,344`) active entries:
+  `linux /vmlinuz pmedia=atahd pfix=fsck,fsckp intel_idle.max_cstate=1
+  snd_hda_intel.power_save=0` (and `,copy` variant).
+  Backups: `40_custom.bak.20261010-presndhda`,
+  `grub.cfg.bak.20261010-presndhda` on `/dev/sda2`.
+  The stale duplicate section from `40_custom.bak.20261003`
+  (`grub.cfg:367,376`) was left untouched.
+- Running Puppy: applied at runtime the same day
+  (`echo 0 > /sys/module/snd_hda_intel/parameters/power_save`;
+  readback `0`). Previously at defaults (`power_save=1`,
+  `power_save_controller=Y`, card `HDA Intel MID`).
 
-So audio power-saving is currently ON under Puppy. To backport, append
-`snd_hda_intel.power_save=0` next to `intel_idle.max_cstate=1` in the
-Puppy entries of Ubuntu's `/etc/grub.d/40_custom` (and optionally to
-`GRUB_CMDLINE_LINUX_DEFAULT`), then `update-grub` from Ubuntu.
+Note: `grub.cfg` was patched directly so the next boot picks the flag
+up; still advisable to run `update-grub` from Ubuntu so the generated
+file and sources re-converge (also cleans the stale `.bak.20261003`
+duplicate entries).
 
 ## Re-verify after any change
 
