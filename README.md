@@ -68,8 +68,20 @@ Disables HDA audio power-saving, which can hang or pop on wakeup.
 snd_hda_intel.power_save=0
 ```
 
-Lives in the same EasyOS `linux` line quoted above. Add it next to
-`intel_idle.max_cstate=1` if backporting to Puppy.
+### Status (verified 2026-10-10): EasyOS-only, NOT on Puppy/Ubuntu
+
+- EasyOS entry (`40_custom:29`, `grub.cfg:352,384`): present.
+- Ubuntu kernels (`/etc/default/grub`, `grub.cfg:179,199,237,275`): absent.
+- Puppy entries (`40_custom:12,21`): absent.
+- Running Puppy `/proc/cmdline`: absent — driver at defaults:
+  `power_save=1` (codec powers down after 1s idle),
+  `power_save_controller=Y`, card `HDA Intel MID`
+  (evidence: `boot/snd_hda-power_save*.txt`, `boot/asound-cards.txt`).
+
+So audio power-saving is currently ON under Puppy. To backport, append
+`snd_hda_intel.power_save=0` next to `intel_idle.max_cstate=1` in the
+Puppy entries of Ubuntu's `/etc/grub.d/40_custom` (and optionally to
+`GRUB_CMDLINE_LINUX_DEFAULT`), then `update-grub` from Ubuntu.
 
 ## Re-verify after any change
 
