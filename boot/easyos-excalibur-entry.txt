@@ -1,0 +1,10 @@
+menuentry 'EasyOS Excalibur 7.4.10' --class easyos --class gnu-linux --class gnu --class os --id easyos-excalibur {
+    load_video
+    insmod gzio
+    insmod part_msdos
+    insmod ext2
+    search --no-floppy --fs-uuid --set=root e093e860-eddd-4457-88b3-0017b647d6e7
+    echo 'Loading EasyOS Excalibur ...'
+    linux /easyos/excalibur/vmlinuz rw intel_idle.max_cstate=1 snd_hda_intel.power_save=0 wkg_uuid=e093e860-eddd-4457-88b3-0017b647d6e7 wkg_dir=easyos/excalibur
+    initrd /easyos/excalibur/initrd
+}

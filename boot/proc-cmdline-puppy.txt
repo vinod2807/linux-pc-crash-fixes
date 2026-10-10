@@ -1,0 +1,1 @@
+BOOT_IMAGE=/vmlinuz pmedia=atahd pfix=fsck,fsckp intel_idle.max_cstate=1
