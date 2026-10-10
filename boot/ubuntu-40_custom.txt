@@ -1,0 +1,31 @@
+#!/bin/sh
+exec tail -n +3 "$0"
+# This file provides an easy way to add custom menu entries. Simply type the
+# menu entries you want to add after this comment. Be careful not to change
+# the 'exec tail' line above.
+menuentry "ResolutePup64 26.04 (on /dev/sda3)" --class puppy --class gnu-linux --class gnu --class os {
+    savedefault
+    insmod part_msdos
+    insmod ext2
+    set root='hd0,msdos3'
+    search --no-floppy --fs-uuid --set=root 41a117b9-c27f-417b-976b-71f136cfffb3
+    linux /vmlinuz pmedia=atahd pfix=fsck,fsckp intel_idle.max_cstate=1
+    initrd /ucode.cpio /initrd.gz
+}
+menuentry "ResolutePup64 26.04 - Copy SFS to RAM (on /dev/sda3)" --class puppy --class gnu-linux --class gnu --class os {
+    savedefault
+    insmod part_msdos
+    insmod ext2
+    set root='hd0,msdos3'
+    search --no-floppy --fs-uuid --set=root 41a117b9-c27f-417b-976b-71f136cfffb3
+    linux /vmlinuz pmedia=atahd pfix=fsck,fsckp,copy intel_idle.max_cstate=1
+    initrd /ucode.cpio /initrd.gz
+}
+menuentry "EasyOS Excalibur (on /dev/sda6)" --class easyos --class gnu-linux --class gnu --class os {
+    savedefault
+    insmod part_msdos
+    insmod ext2
+    search --no-floppy --fs-uuid --set=root e093e860-eddd-4457-88b3-0017b647d6e7
+    linux /easyos/excalibur/vmlinuz rw intel_idle.max_cstate=1 snd_hda_intel.power_save=0 wkg_uuid=e093e860-eddd-4457-88b3-0017b647d6e7 wkg_dir=easyos/excalibur
+    initrd /easyos/excalibur/initrd
+}

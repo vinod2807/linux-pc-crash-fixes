@@ -36,34 +36,29 @@ Only `POLL` + `C1` are exposed — deep states are off, as intended.
 Evidence copies in `boot/` (`proc-cmdline-puppy.txt`, `max_cstate.txt`,
 `available-idle-states.txt`).
 
-### Where it is persisted
+### Where it is persisted — Ubuntu GRUB owns the boot
 
-Persisted for EasyOS, on `/dev/sda1` (`vfat`), file `/grub/custom.cfg`:
+GRUB is handled by Ubuntu 26.04.1 LTS on `/dev/sda2`. The flag is persisted
+in two places there (evidence in `boot/ubuntu-default-grub.txt`,
+`boot/ubuntu-40_custom.txt`):
 
-```
-menuentry 'EasyOS Excalibur 7.4.10' --class easyos --class gnu-linux --class gnu --class os --id easyos-excalibur {
-    ...
-    search --no-floppy --fs-uuid --set=root e093e860-eddd-4457-88b3-0017b647d6e7
-    echo 'Loading EasyOS Excalibur ...'
-    linux /easyos/excalibur/vmlinuz rw intel_idle.max_cstate=1 snd_hda_intel.power_save=0 wkg_uuid=e093e860-eddd-4457-88b3-0017b647d6e7 wkg_dir=easyos/excalibur
-    initrd /easyos/excalibur/initrd
-}
-```
+1. `/etc/default/grub`:
+   `GRUB_CMDLINE_LINUX_DEFAULT="intel_idle.max_cstate=1"` — covers all
+   Ubuntu kernels (`/boot/vmlinuz-7.0.0-*`).
+2. `/etc/grub.d/40_custom` — custom entries for the other OSes:
+   - `ResolutePup64 26.04 (on /dev/sda3)`:
+     `linux /vmlinuz pmedia=atahd pfix=fsck,fsckp intel_idle.max_cstate=1`
+   - `ResolutePup64 26.04 - Copy SFS to RAM (on /dev/sda3)`: same + `,copy`
+   - `EasyOS Excalibur (on /dev/sda6)`: `... rw intel_idle.max_cstate=1
+     snd_hda_intel.power_save=0 ...` (full entry in
+     `boot/easyos-excalibur-entry.txt`)
 
-Source: `/dev/sda1:/grub/custom.cfg` (EasyOS entry). Full entry saved in
-`boot/easyos-excalibur-entry.txt`.
-
-### NOT persisted for Puppy — one-time boot edit
-
-The running Puppy has the flag, but none of the on-disk Puppy boot files do:
-
-- `/initrd/mnt/dev_save/grub.cfg` (`linux /vmlinuz pmedia=cd pfix=fsck,fsckp`)
-- `/initrd/mnt/dev_save/boot/grub/menu.lst` (`kernel /vmlinuz pmedia=cd pfix=fsck,fsckp`)
-
-So the current Puppy boot was edited once at the GRUB prompt (`e`).
-To make it permanent, append `intel_idle.max_cstate=1` to the `linux` /
-`kernel` line of the used entry in both files above (they are two views of
-the same Puppy install on `/dev/sda3`, LABEL `ResolutePup`).
+History: `/etc/grub.d/40_custom.bak.20261003` shows the Puppy entries
+*without* the flag, so the flag was added to the Puppy entries after
+2026-10-03 and has survived reboots since. The Puppy-local boot files
+(`/initrd/mnt/dev_save/grub.cfg`, `/boot/grub/menu.lst`) were never the
+boot path — they don't carry the flag and don't need it while Ubuntu's
+GRUB chainloads `/vmlinuz` off `/dev/sda3` directly.
 
 ## Fix 2 — `snd_hda_intel.power_save=0` (audio power-save hangs/pops)
 
